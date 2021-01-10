@@ -5,28 +5,46 @@ import CountDown from "react-native-countdown-component";
 
 export default class Timer extends Component {
   state = {
-    paused: true,
+    paused: null,
+    timeLeft: null, // in seconds
   };
 
   componentDidMount() {
     this.socket = io("localhost:3000");
-    this.socket.on("buttonPress", () => {
+    this.socket.emit("connectionStart");
+
+    this.socket.on("connectionStart", (initialServerState) => {
       this.setState({
-        paused: !this.state.paused,
+        paused: initialServerState.paused,
+        timeLeft: initialServerState.timeLeft,
       });
-      console.log("received button press from server");
+      console.log("timer time left:", initialServerState.timeLeft);
+      console.log("[client] connection initialized");
+    });
+
+    this.socket.on("buttonPress", (serverState) => {
+      this.setState({
+        paused: serverState.paused,
+      });
     });
   }
 
   handleButtonPress = () => {
     this.socket.emit("buttonPress");
-    console.log("original button press");
   };
 
   render() {
+    const countdown = this.state.timeLeft ? (
+      <CountDown
+        until={this.state.timeLeft}
+        running={!this.state.paused}
+        timeToShow={["M", "S"]}
+      />
+    ) : null;
+
     return (
       <View>
-        <CountDown until={500} running={!this.state.paused} />
+        {countdown}
         <Button
           onPress={this.handleButtonPress}
           title={this.state.paused ? "PLAY" : "PAUSE"}
