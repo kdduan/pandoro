@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { View, Button } from "react-native";
 import io from "socket.io-client";
+import CountDown from "react-native-countdown-component";
 
 export default class Timer extends Component {
   state = {
@@ -25,6 +26,7 @@ export default class Timer extends Component {
   render() {
     return (
       <View>
+        <CountDown until={500} running={!this.state.paused} />
         <Button
           onPress={this.handleButtonPress}
           title={this.state.paused ? "PLAY" : "PAUSE"}
