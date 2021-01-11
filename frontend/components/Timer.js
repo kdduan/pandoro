@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Button } from "react-native";
+import { Text, View, Button } from "react-native";
 import io from "socket.io-client";
 import CountDown from "react-native-countdown-component";
 
@@ -7,11 +7,23 @@ export default class Timer extends Component {
   state = {
     paused: null,
     timeLeft: null, // in seconds
+    roomId: null,
   };
+
+  componentWillMount() {
+    // randomly generate roomId
+    const randNum = Math.floor(Math.random() * 2 + 1);
+    console.log(randNum);
+    this.setState({
+      roomId: randNum,
+    });
+  }
 
   componentDidMount() {
     this.socket = io("localhost:3000");
-    this.socket.emit("connectionStart");
+    this.socket.emit("connectionStart", {
+      roomId: this.state.roomId,
+    });
 
     this.socket.on("connectionStart", (initialServerState) => {
       this.setState({
@@ -30,7 +42,9 @@ export default class Timer extends Component {
   }
 
   handleButtonPress = () => {
-    this.socket.emit("buttonPress");
+    this.socket.emit("buttonPress", {
+      roomId: this.state.roomId,
+    });
   };
 
   render() {
@@ -42,8 +56,13 @@ export default class Timer extends Component {
       />
     ) : null;
 
+    const title = this.state.roomId ? (
+      <Text>{"Room " + this.state.roomId}</Text>
+    ) : null;
+
     return (
       <View>
+        {title}
         {countdown}
         <Button
           onPress={this.handleButtonPress}
