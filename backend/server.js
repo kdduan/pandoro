@@ -1,5 +1,24 @@
+require("dotenv").config();
 const express = require("express");
+const firebase = require("firebase");
+require("firebase/auth");
+require("firebase/database");
 const socket = require("socket.io");
+
+// firebase configuration
+var firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSENGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+};
+
+// initialize firebase
+firebase.initializeApp(firebaseConfig);
 
 const app = express();
 const port = 3000;
@@ -15,10 +34,6 @@ const io = socket(server, {
 });
 
 // temp in memory data
-let paused = true;
-let lastPlayTime = null;
-let timeLeft = 600;
-
 const room1db = {
   paused: true,
   lastPlayTime: null,
